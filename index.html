@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AILT1001 Final Hub</title>
+<style>
+:root{
+  --bg:#f4f5fb;--card:#fff;--text:#1a1d2e;--muted:#6b7280;--line:#e5e7f0;
+  --a1:#5b5bf0;--a2:#06b6d4;--exam:#f97316;--ok:#16a34a;--bad:#dc2626;
+  --shadow:0 1px 2px rgba(20,20,60,.05),0 8px 24px -12px rgba(20,20,60,.15);
+  --hero:linear-gradient(135deg,#4f46e5 0%,#7c3aed 55%,#06b6d4 120%);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --bg:#0e1020;--card:#171a2e;--text:#e9ebf7;--muted:#9aa1b9;--line:#262a45;--a1:#8b8bff;--a2:#38d3ee;--exam:#fb923c;--ok:#4ade80;--bad:#f87171;--shadow:0 8px 24px -12px #000;
+  --hero:linear-gradient(135deg,#312e81 0%,#5b21b6 55%,#0e7490 120%);}}
+:root[data-theme=dark]{
+  --bg:#0e1020;--card:#171a2e;--text:#e9ebf7;--muted:#9aa1b9;--line:#262a45;--a1:#8b8bff;--a2:#38d3ee;--exam:#fb923c;--ok:#4ade80;--bad:#f87171;--shadow:0 8px 24px -12px #000;
+  --hero:linear-gradient(135deg,#312e81 0%,#5b21b6 55%,#0e7490 120%);}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:140px}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1020px;margin:0 auto;padding:0 16px}
+.hero{background:var(--hero);color:#fff;padding:34px 0 64px;position:relative;overflow:hidden}
+.hero::before,.hero::after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.08)}
+.hero::before{width:320px;height:320px;right:-80px;top:-120px}
+.hero::after{width:180px;height:180px;left:-50px;bottom:-90px}
+.hero h1{margin:0;font-size:clamp(1.6rem,4vw,2.4rem);letter-spacing:-.02em;line-height:1.15}
+.hero p{margin:8px 0 18px;opacity:.92;max-width:660px}
+.hero .eq{font-family:Georgia,serif;font-style:italic;opacity:.8;font-size:1.05rem;margin-top:14px}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{background:rgba(255,255,255,.16);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:8px 14px}
+.stat b{display:block;font-size:1.3rem;line-height:1.1}
+.stat span{font-size:12px;opacity:.85}
+.prog{height:6px;border-radius:99px;background:rgba(255,255,255,.25);margin-top:14px;max-width:420px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:#fff;border-radius:99px;transition:width .4s}
+.toolbar{position:sticky;top:0;z-index:20;margin-top:-30px}
+.toolbar .box{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:10px 12px}
+.tabs{display:flex;gap:4px;background:var(--bg);border-radius:10px;padding:3px;width:max-content;max-width:100%;overflow-x:auto}
+.tab{border:0;background:none;color:var(--muted);font:600 14px/1.2 system-ui,sans-serif;padding:7px 14px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.tab.on{background:var(--card);color:var(--a1);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+input[type=search]{flex:1 1 220px;padding:9px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:15px system-ui,sans-serif;outline:none;min-width:0}
+input[type=search]:focus{border-color:var(--a1);box-shadow:0 0 0 3px color-mix(in srgb,var(--a1) 22%,transparent)}
+.chip,.ibtn,.btn{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:999px;padding:6px 13px;font:13px system-ui,sans-serif;cursor:pointer;transition:.15s}
+.chip:hover,.ibtn:hover,.btn:hover{border-color:var(--a1)}
+.chip.on{background:var(--a1);border-color:var(--a1);color:#fff}
+.btn.pri{background:var(--a1);border-color:var(--a1);color:#fff;font-weight:600;padding:8px 16px}
+.btn.big{font-size:15px;padding:10px 20px}
+main{padding:20px 0 60px}
+.view{display:none}.view.on{display:block}
+h2.sec{display:flex;gap:12px;align-items:center;font-size:1.3rem;margin:30px 0 4px;letter-spacing:-.01em}
+.num{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:11px;color:#fff;font-weight:800;font-size:.95rem;background:linear-gradient(135deg,var(--c1),var(--c2))}
+.blurb{color:var(--muted);margin:0 0 12px 50px}
+@media(max-width:700px){.blurb{margin-left:0}}
+.grid{display:grid;gap:12px}
+.card{--c1:var(--a1);--c2:var(--a2);position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px 14px 20px;box-shadow:var(--shadow);overflow:hidden}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(var(--c1),var(--c2))}
+.card.done{opacity:.55}
+.top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.name{font-weight:700;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.badge{font-size:10.5px;font-weight:800;letter-spacing:.04em;color:#fff;background:var(--c1);border-radius:999px;padding:1px 8px}
+.badge.exam{background:var(--exam)}
+label.chk{font-size:13px;color:var(--muted);display:flex;gap:6px;align-items:center;cursor:pointer;user-select:none}
+label.chk input{accent-color:var(--ok);width:16px;height:16px}
+.big{margin:4px 0 10px;padding:9px 13px;border-radius:10px;background:color-mix(in srgb,var(--c1) 10%,transparent);font-weight:600;font-size:15px}
+.big::before{content:"★ ";color:var(--c1)}
+.card h4{margin:12px 0 4px;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--c1)}
+.card ul,.card ol{margin:0;padding-left:20px;font-size:14.5px}
+.card li{margin:3px 0}
+.hidden{display:none!important}
+.empty{text-align:center;color:var(--muted);padding:40px 0}
+mark{background:color-mix(in srgb,var(--exam) 35%,transparent);color:inherit;border-radius:3px;padding:0 1px}
+/* quiz */
+.qcard{max-width:760px;margin:0 auto}
+.qmeta{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;font-weight:600;margin-bottom:6px}
+.qbar{height:6px;border-radius:99px;background:var(--line);overflow:hidden;margin-bottom:14px}
+.qbar i{display:block;height:100%;background:linear-gradient(90deg,var(--a1),var(--a2));transition:width .3s}
+.qtext{font-size:1.12rem;font-weight:650;margin:2px 0 14px}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;border:1.5px solid var(--line);background:var(--bg);color:var(--text);border-radius:12px;padding:11px 14px;font:15px/1.4 system-ui,sans-serif;cursor:pointer;transition:.12s}
+.opt:hover:not(:disabled){border-color:var(--a1)}
+.opt .k{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;background:var(--card);border:1px solid var(--line)}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)}
+.opt.right .k{background:var(--ok);color:#fff;border-color:var(--ok)}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,transparent)}
+.opt.wrong .k{background:var(--bad);color:#fff;border-color:var(--bad)}
+.opt:disabled{cursor:default}
+.expl{margin-top:12px;padding:10px 14px;border-radius:10px;border-left:3px solid var(--ok);background:color-mix(in srgb,var(--ok) 9%,transparent);font-size:14.5px}
+.expl.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 8%,transparent)}
+.qnav{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:8px;flex-wrap:wrap}
+.score{font-size:2.6rem;font-weight:800;letter-spacing:-.03em;background:linear-gradient(135deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.setup{display:grid;gap:14px}
+.setup h3{margin:0;font-size:1rem}
+.lchips{display:flex;gap:6px;flex-wrap:wrap}
+/* SAQ */
+.qbody{font-size:15px;margin:6px 0 4px;font-weight:600}
+.ans{display:none;font-size:14.5px;margin-top:10px;padding:10px 14px;border-radius:10px;background:color-mix(in srgb,var(--ok) 9%,transparent);border-left:3px solid var(--ok)}
+.ans p{margin:4px 0}
+.open .ans{display:block}
+.draft{width:100%;min-height:70px;margin-top:8px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,sans-serif;resize:vertical}
+.rev{margin-top:8px}
+.open .rev{background:var(--ok);border-color:var(--ok);color:#fff}
+/* flashcards */
+.fc-wrap{max-width:640px;margin:0 auto}
+.flip{perspective:1200px;cursor:pointer;height:260px}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:18px;padding:22px 26px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;box-shadow:var(--shadow);border:1px solid var(--line)}
+.face.front{background:var(--hero);color:#fff}
+.face.front b{font-size:1.6rem;letter-spacing:-.01em}
+.face.back{background:var(--card);transform:rotateY(180deg);font-size:15.5px}
+.face small{position:absolute;top:12px;left:16px;font-size:12px;font-weight:700;opacity:.8}
+.face .hint{position:absolute;bottom:12px;font-size:12px;opacity:.7}
+.fcbtns{display:flex;justify-content:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+/* plan */
+.pi{display:flex;gap:10px;align-items:flex-start;padding:6px 8px;border-radius:8px;cursor:pointer;font-size:14.5px}
+.pi:hover{background:var(--bg)}
+.pi input{accent-color:var(--ok);width:16px;height:16px;flex:none;margin-top:3px}
+.pi.ok span{text-decoration:line-through;opacity:.55}
+.tips{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}
+.kbd{font:12px ui-monospace,monospace;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:var(--bg)}
+footer{color:var(--muted);font-size:13px;text-align:center;padding:10px 0 40px}
+@media print{.hero,.toolbar,footer{display:none}.card{break-inside:avoid;box-shadow:none}.view{display:block!important}#v-quiz,#v-flash{display:none!important}.ans{display:block!important}.draft,.rev{display:none}}
+</style>
+</head>
+<body>
+<div class="hero"><div class="wrap">
+  <h1>AILT1001 Final Test Hub</h1>
+  <p>Every lecture from L1 to L9 condensed into notes, plus MCQ drills, short‑answer practice with model answers, and flashcards, all in one place.</p>
+  <div class="stats">
+    <div class="stat"><b id="s-days">–</b><span id="s-days-l">days to test</span></div>
+    <div class="stat"><b id="s-mcq">0</b><span>MCQs</span></div>
+    <div class="stat"><b id="s-saq">0</b><span>short answers</span></div>
+    <div class="stat"><b id="s-done">0</b><span>mastered</span></div>
+  </div>
+  <div class="prog"><i id="prog"></i></div>
+  <div class="eq">predict next token · context changes, weights fixed · AI doesn't remove human responsibility</div>
+</div></div>
+
+<div class="toolbar"><div class="wrap"><div class="box">
+  <div class="tabs" role="tablist">
+    <button class="tab on" data-v="notes">📚 Notes</button>
+    <button class="tab" data-v="quiz">🧠 MCQ quiz</button>
+    <button class="tab" data-v="saq">✍️ Short answer</button>
+    <button class="tab" data-v="flash">🃏 Flashcards</button>
+    <button class="tab" data-v="plan">✅ Exam &amp; plan</button>
+  </div>
+  <div class="row" id="filterRow">
+    <input type="search" id="q" placeholder="Search notes & questions… (e.g. COMPAS, attention, diffusion)">
+    <button class="chip" id="hideDone">Not mastered</button>
+    <button class="ibtn" id="theme" title="Toggle theme">🌓</button>
+    <button class="ibtn" onclick="print()" title="Print notes">🖨</button>
+  </div>
+  <div class="row lchips" id="lecChips"></div>
+</div></div></div>
+
+<main class="wrap">
+  <section class="view on" id="v-notes"><div class="grid" id="notes"></div><div class="empty hidden" id="notesEmpty">No matches — try a different search.</div></section>
+
+  <section class="view" id="v-quiz"><div class="qcard" id="quiz"></div></section>
+
+  <section class="view" id="v-saq">
+    <h2 class="sec" style="--c1:var(--exam);--c2:#f43f5e"><span class="num">✍️</span>Short‑answer practice</h2>
+    <p class="blurb">The final test is <b>short‑answer</b>. Write your answer in the box (or on paper), then press <b>Reveal model answer</b>. Tick <b>Got it</b> once you could reproduce it closed‑book.</p>
+    <div class="row" style="margin:0 0 12px 50px"><button class="btn" id="showAll">Show all answers</button><button class="btn" id="shuffleSaq">🔀 Shuffle</button></div>
+    <div class="grid" id="saq"></div><div class="empty hidden" id="saqEmpty">No matches — try a different search.</div>
+  </section>
+
+  <section class="view" id="v-flash"><div class="fc-wrap" id="flash"></div></section>
+
+  <section class="view" id="v-plan">
+    <h2 class="sec" style="--c1:#dc2626;--c2:#f97316"><span class="num">📅</span>Final test essentials</h2>
+    <div class="tips" id="examInfo"></div>
+    <h2 class="sec" style="--c1:var(--ok);--c2:#0ea5e9"><span class="num">✅</span>Two‑day study plan</h2>
+    <p class="blurb">Ticks are saved in this browser.</p>
+    <div class="grid" id="plan"></div>
+    <h2 class="sec" style="--c1:#7c3aed;--c2:#ec4899"><span class="num">💡</span>How to write a good short answer</h2>
+    <div class="tips" id="howto"></div>
+  </section>
+</main>
+<footer>Compiled from AILT1001 Lecture 1–9 slides (2026‑27 Sem 1). These notes are a study aid, so check anything important against the slides and Ed. Progress is saved in this browser.</footer>
+
+<script src="data.js"></script>
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const store={get(k,d){try{const v=localStorage.getItem('ailt1001:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('ailt1001:'+k,JSON.stringify(v))}catch(e){}}};
+const L=window.LECTURES, LMAP=Object.fromEntries(L.map(x=>[x.id,x]));
+let view='notes', lecSel=new Set(store.get('lecSel',[])), hideDone=false, query='';
+const doneSaq=new Set(store.get('doneSaq',[])), doneNote=new Set(store.get('doneNote',[])), knownFc=new Set(store.get('knownFc',[]));
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const strip=h=>h.replace(/<[^>]+>/g,'');
+function hl(html){ if(!query) return html; const re=new RegExp('('+query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'); return html.replace(/>([^<]+)</g,(m,t)=>'>'+t.replace(re,'<mark>$1</mark>')+'<').replace(/^([^<]+)/,(m,t)=>t.replace(re,'<mark>$1</mark>')); }
+const lecOk=id=>lecSel.size===0||lecSel.has(id);
+
+/* ---------- theme ---------- */
+const th=store.get('theme',null); if(th) document.documentElement.dataset.theme=th;
+else if(matchMedia('(prefers-color-scheme:dark)').matches) document.documentElement.dataset.theme='dark';
+$('#theme').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=t;store.set('theme',t)};
+
+/* ---------- lecture chips ---------- */
+function renderChips(){
+  $('#lecChips').innerHTML='<button class="chip'+(lecSel.size?'':' on')+'" data-l="all">All lectures</button>'+L.map(x=>`<button class="chip${lecSel.has(x.id)?' on':''}" data-l="${x.id}" title="${esc(x.title)}">${x.id}</button>`).join('');
+  $$('#lecChips .chip').forEach(b=>b.onclick=()=>{const l=b.dataset.l; if(l==='all')lecSel.clear(); else lecSel.has(l)?lecSel.delete(l):lecSel.add(l); store.set('lecSel',[...lecSel]); renderChips(); renderAll();});
+}
+
+/* ---------- notes ---------- */
+function renderNotes(){
+  let n=0;
+  $('#notes').innerHTML=L.map(x=>{
+    const text=strip(x.title+' '+x.big+' '+x.sections.map(s=>s[0]+' '+s[1].join(' ')).join(' ')).toLowerCase();
+    const show=lecOk(x.id)&&(!query||text.includes(query.toLowerCase()))&&!(hideDone&&doneNote.has(x.id));
+    if(!show) return ''; n++;
+    const secs=x.sections.map(([h,items])=>{
+      let its=items; if(query){const f=items.filter(i=>strip(i).toLowerCase().includes(query.toLowerCase())||h.toLowerCase().includes(query.toLowerCase())); if(!f.length) return ''; its=f;}
+      return `<h4>${esc(h)}</h4><ul>${its.map(i=>'<li>'+hl(i)+'</li>').join('')}</ul>`}).join('');
+    return `<div class="card${doneNote.has(x.id)?' done':''}" style="--c1:${x.c1};--c2:${x.c2}" id="note-${x.id}">
+      <div class="top"><div class="name"><span class="num" style="width:32px;height:32px;font-size:.85rem">${x.id}</span><span style="font-size:1.1rem">${esc(x.title)}</span></div>
+      <label class="chk"><input type="checkbox" data-note="${x.id}" ${doneNote.has(x.id)?'checked':''}> Revised</label></div>
+      <div class="big">${hl(x.big)}</div>${secs}
+      <div class="row" style="margin-top:10px"><button class="btn" onclick="startQuiz(['${x.id}'])">🧠 Quiz ${x.id}</button><button class="btn" onclick="gotoSaq('${x.id}')">✍️ ${x.id} short answers</button></div></div>`;
+  }).join('');
+  $('#notesEmpty').classList.toggle('hidden',n>0);
+  $$('#notes [data-note]').forEach(c=>c.onchange=()=>{c.checked?doneNote.add(c.dataset.note):doneNote.delete(c.dataset.note);store.set('doneNote',[...doneNote]);renderNotes();stats();});
+}
+
+/* ---------- SAQ ---------- */
+let saqOrder=SAQ.map((_,i)=>i), allOpen=false;
+const drafts=store.get('drafts',{});
+function renderSaq(){
+  let n=0;
+  $('#saq').innerHTML=saqOrder.map(i=>{
+    const s=SAQ[i], id='s'+i, lx=LMAP[s.l];
+    const text=(s.q+' '+strip(s.a)).toLowerCase();
+    if(!lecOk(s.l)||(query&&!text.includes(query.toLowerCase()))||(hideDone&&doneSaq.has(id))) return '';
+    n++;
+    return `<div class="card${doneSaq.has(id)?' done':''}${allOpen?' open':''}" style="--c1:${lx.c1};--c2:${lx.c2}" data-id="${id}">
+      <div class="top"><div class="name"><span class="badge">${s.l}</span><span style="font-size:12.5px;color:var(--muted);font-weight:600">${esc(lx.title)}</span></div>
+      <label class="chk"><input type="checkbox" data-saq="${id}" ${doneSaq.has(id)?'checked':''}> Got it</label></div>
+      <div class="qbody">${hl(esc(s.q))}</div>
+      <textarea class="draft" data-draft="${id}" placeholder="Write your answer here first (saved locally)…">${esc(drafts[id]||'')}</textarea>
+      <button class="btn rev" data-rev="${id}">${allOpen?'Hide':'Reveal'} model answer</button>
+      <div class="ans">${hl(s.a)}</div></div>`;
+  }).join('');
+  $('#saqEmpty').classList.toggle('hidden',n>0);
+  $$('#saq [data-rev]').forEach(b=>b.onclick=()=>{const c=b.closest('.card');c.classList.toggle('open');b.textContent=(c.classList.contains('open')?'Hide':'Reveal')+' model answer'});
+  $$('#saq [data-saq]').forEach(c=>c.onchange=()=>{c.checked?doneSaq.add(c.dataset.saq):doneSaq.delete(c.dataset.saq);store.set('doneSaq',[...doneSaq]);c.closest('.card').classList.toggle('done',c.checked);stats();});
+  $$('#saq [data-draft]').forEach(t=>t.oninput=()=>{drafts[t.dataset.draft]=t.value;store.set('drafts',drafts)});
+}
+$('#showAll').onclick=()=>{allOpen=!allOpen;$('#showAll').textContent=allOpen?'Hide all answers':'Show all answers';renderSaq()};
+$('#shuffleSaq').onclick=()=>{saqOrder=shuffle(saqOrder.slice());renderSaq()};
+function gotoSaq(l){lecSel=new Set([l]);store.set('lecSel',[...lecSel]);renderChips();setView('saq');renderAll();scrollTo({top:0})}
+
+/* ---------- MCQ quiz ---------- */
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+let Q=null; // {items:[{i,order}],pos,answers:[],done}
+const missed=new Set(store.get('missed',[])); let best=store.get('best',{});
+function quizSetup(){
+  const pool=MCQ.filter(m=>lecOk(m.l)).length;
+  const lecTxt=lecSel.size?[...lecSel].sort().join(', '):'all lectures';
+  $('#quiz').innerHTML=`<div class="card"><div class="setup">
+    <div><h2 class="sec" style="margin:0"><span class="num">🧠</span>MCQ drill</h2>
+    <p class="blurb" style="margin:6px 0 0 50px">Quick checks on concepts, key numbers and definitions. Use the lecture chips above to narrow the topics. Currently using <b>${lecTxt}</b> (${pool} questions).</p></div>
+    <div><h3>How many questions?</h3><div class="lchips" id="qn">${[10,20,40,'All'].map((k,i)=>`<button class="chip${i===1?' on':''}" data-n="${k}">${k}</button>`).join('')}</div></div>
+    <div class="row"><button class="btn pri big" id="go">Start quiz →</button>
+    ${missed.size?`<button class="btn big" id="goMissed">🔁 Retry ${missed.size} missed</button>`:''}</div>
+    ${Object.keys(best).length?`<div style="font-size:13px;color:var(--muted)">Best scores: ${Object.entries(best).map(([k,v])=>`<b>${k}</b> ${v}%`).join(' · ')}</div>`:''}
+    <div style="font-size:13px;color:var(--muted)">Keys: <span class="kbd">1</span>–<span class="kbd">4</span> answer · <span class="kbd">Enter</span> next</div>
+  </div></div>`;
+  let n=20; $$('#qn .chip').forEach(b=>b.onclick=()=>{$$('#qn .chip').forEach(x=>x.classList.remove('on'));b.classList.add('on');n=b.dataset.n});
+  $('#go').onclick=()=>{const idx=MCQ.map((m,i)=>i).filter(i=>lecOk(MCQ[i].l));startWith(shuffle(idx).slice(0,n==='All'?idx.length:+n))};
+  if($('#goMissed')) $('#goMissed').onclick=()=>startWith(shuffle([...missed]));
+}
+function startQuiz(lecs){lecSel=new Set(lecs);store.set('lecSel',[...lecSel]);renderChips();renderAll();setView('quiz');const idx=MCQ.map((m,i)=>i).filter(i=>lecOk(MCQ[i].l));startWith(shuffle(idx));scrollTo({top:0})}
+function startWith(idx){if(!idx.length)return;Q={items:idx.map(i=>({i,order:shuffle([0,1,2,3].slice(0,MCQ[i].o.length))})),pos:0,answers:[]};renderQ()}
+function renderQ(){
+  if(!Q){quizSetup();return}
+  if(Q.pos>=Q.items.length) return renderResult();
+  const it=Q.items[Q.pos], m=MCQ[it.i], lx=LMAP[m.l], ans=Q.answers[Q.pos];
+  $('#quiz').innerHTML=`<div class="card" style="--c1:${lx.c1};--c2:${lx.c2}">
+    <div class="qmeta"><span>Question ${Q.pos+1} / ${Q.items.length}</span><span><span class="badge">${m.l}</span></span></div>
+    <div class="qbar"><i style="width:${Q.pos/Q.items.length*100}%"></i></div>
+    <div class="qtext">${esc(m.q)}</div>
+    <div class="opts">${it.order.map((oi,k)=>{let cls='';if(ans!=null){if(oi===m.a)cls='right';else if(oi===ans)cls='wrong'}
+      return `<button class="opt ${cls}" data-oi="${oi}" ${ans!=null?'disabled':''}><span class="k">${k+1}</span><span>${esc(m.o[oi])}</span></button>`}).join('')}</div>
+    ${ans!=null?`<div class="expl ${ans===m.a?'':'bad'}"><b>${ans===m.a?'✓ Correct.':'✗ Not quite. Answer: '+esc(m.o[m.a])+'.'}</b> ${esc(m.e)}</div>`:''}
+    <div class="qnav"><button class="btn" id="quit">✕ End quiz</button><span style="font-size:13px;color:var(--muted)">Score: ${Q.answers.filter((a,j)=>a===MCQ[Q.items[j].i].a).length}</span>
+    ${ans!=null?`<button class="btn pri" id="next">${Q.pos+1<Q.items.length?'Next →':'See results'}</button>`:'<span></span>'}</div></div>`;
+  $$('#quiz .opt').forEach(b=>b.onclick=()=>answer(+b.dataset.oi));
+  $('#quit').onclick=()=>{Q.items=Q.items.slice(0,Q.answers.length);renderResult()};
+  if($('#next')) $('#next').onclick=next;
+}
+function answer(oi){if(Q.answers[Q.pos]!=null)return;const i=Q.items[Q.pos].i;Q.answers[Q.pos]=oi;if(oi===MCQ[i].a)missed.delete(i);else missed.add(i);store.set('missed',[...missed]);renderQ()}
+function next(){Q.pos++;renderQ()}
+function renderResult(){
+  const tot=Q.items.length, right=Q.answers.filter((a,j)=>a===MCQ[Q.items[j].i].a).length, pct=tot?Math.round(right/tot*100):0;
+  const key=lecSel.size?[...lecSel].sort().join('+'):'All'; if(tot>=5&&pct>(best[key]||0)){best[key]=pct;store.set('best',best)}
+  const byL={}; Q.items.forEach((it,j)=>{const l=MCQ[it.i].l;byL[l]=byL[l]||[0,0];byL[l][1]++;if(Q.answers[j]===MCQ[it.i].a)byL[l][0]++});
+  const wrong=Q.items.filter((it,j)=>Q.answers[j]!==MCQ[it.i].a);
+  $('#quiz').innerHTML=`<div class="card"><div style="text-align:center"><div class="score">${right} / ${tot}</div>
+    <div style="color:var(--muted);font-weight:600">${pct}% · ${pct>=80?'Excellent! 🎉':pct>=60?'Good, review the misses below.':'Keep going, re‑read the notes for weak lectures.'}</div></div>
+    <h4 style="margin-top:16px">By lecture</h4><div class="lchips">${Object.entries(byL).sort().map(([l,[r,t]])=>`<span class="chip" style="cursor:default;${r/t<.6?'border-color:var(--bad)':''}">${l}: ${r}/${t}</span>`).join('')}</div>
+    ${wrong.length?`<h4 style="margin-top:16px">Review your misses</h4><ul>${wrong.map(it=>{const m=MCQ[it.i];return `<li style="margin:8px 0"><b>${esc(m.q)}</b><br><span style="color:var(--ok)">✓ ${esc(m.o[m.a])}</span>. <span style="color:var(--muted)">${esc(m.e)}</span></li>`}).join('')}</ul>`:''}
+    <div class="qnav"><button class="btn" id="again">New quiz</button>${wrong.length?'<button class="btn pri" id="retry">🔁 Retry these misses</button>':''}</div></div>`;
+  $('#again').onclick=()=>{Q=null;renderQ()};
+  if($('#retry')) $('#retry').onclick=()=>startWith(shuffle(wrong.map(it=>it.i)));
+  stats();
+}
+document.addEventListener('keydown',e=>{
+  if(view==='quiz'&&Q&&Q.pos<Q.items.length&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){
+    const b=$$('#quiz .opt'); if(/^[1-4]$/.test(e.key)&&b[+e.key-1]&&!b[0].disabled) b[+e.key-1].click();
+    if(e.key==='Enter'&&$('#next')) {e.preventDefault();next()}
+  }
+  if(view==='flash'&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){
+    if(e.key===' '){e.preventDefault();$('.flip')&&$('.flip').classList.toggle('on')}
+    if(e.key==='ArrowRight')fcMove(1); if(e.key==='ArrowLeft')fcMove(-1);
+  }
+});
+
+/* ---------- flashcards ---------- */
+const TERMS=[
+["L1","Turing Test (1950)","Human judge, text only, human vs AI; if the judge can't reliably tell them apart the AI passes. Judges AI by what it can do."],
+["L1","Chinese Room (Searle 1980)","A person follows a rulebook to answer in Chinese without understanding it. A correct reply ≠ understanding."],
+["L1","AI timeline","1943 neuron · 1958 perceptron · 1986 backprop · 2012 deep learning · 2017 transformer · 2020s LLMs"],
+["L1","High‑stakes decisions","Need stronger evidence, stronger checks, and someone responsible."],
+["L2","Weight (knob)","Number that strengthens or weakens a signal between nodes; set by training."],
+["L2","Artificial neuron (Σ)","Adds its weighted inputs and produces one output (then activation)."],
+["L2","ReLU","Activation: positive values pass, negatives become 0."],
+["L2","Inference","Using a trained network on new input; weights stay fixed."],
+["L2","Training","Adjusting weights so predictions match known training data."],
+["L2","Backpropagation","Uses the error to update all weights at the same time, instead of brute‑force search."],
+["L2","Layers","Input layer → hidden layer(s) → output layer."],
+["L3","Token","A piece of text: a whole word, part of a word, or punctuation. Becomes an ID and then an embedding."],
+["L3","Next‑token prediction","LLM outputs a probability distribution over the next token; repeat until <end>."],
+["L3","Sampling","Picking the next token by probability, so the same prompt can give different outputs."],
+["L3","Pre‑training → Base model","Stage I: learn next‑token prediction on huge filtered text (e.g. FineWeb)."],
+["L3","Fine‑tuning → Instruct model","Stage II: train on checked request–response examples."],
+["L3","Human feedback → Aligned model","Stage III: people compare answers → reward model → guides weight updates."],
+["L3","Reward model","Predicts human preference scores; used to steer the LLM in Stage III."],
+["L3","Attention","Uses relevant earlier tokens to predict the next (bank → money vs fish)."],
+["L3","Agent","Uses generated tokens as tool instructions, acts, and feeds results back in."],
+["L4","Chatbot","LLM + context (instructions, memory, prompt, skill, recent messages, tools) + tools."],
+["L4","Context window","Max amount of context the model can process; when it's full the chatbot compacts (summarises) old messages."],
+["L4","AGENTS.md / MEMORY.md / SKILL.md","Instructions / persistent memory / procedures for a task."],
+["L4","Agentic AI","Works towards a goal using tools, checking results and deciding next steps (Build → Test → Improve)."],
+["L4","Qwen3.5‑9B","Qwen = Alibaba open‑weight family, 3.5 = version, 9B ≈ 9 billion weights."],
+["L4","Open vs closed weights","Open: you can download and run them yourself. Closed: the provider controls the computer."],
+["L4","Quantisation","Fewer bits per weight (16→6→4→3 bit) means less memory, with a risk of quality loss."],
+["L4","Self‑hosted vs managed","You run it vs the provider runs it. Ask who has access to your data."],
+["L5","Modality","Type of data: text, image, audio, video."],
+["L5","RGB pixel","Red, Green and Blue values, each from 0 to 255."],
+["L5","Vision encoder","Turns image patches into learned image representations for the context."],
+["L5","Diffusion (generation)","Start from noise; estimate the noise, take a small denoising step, repeat."],
+["L5","Diffusion (training)","Add known noise to real images; the network predicts the added noise; compare and adjust weights."],
+["L5","Specialist model as a tool","A chatbot can offer more than its LLM alone (e.g. calling an image model)."],
+["L5","Deepfake defence","Verify consequential requests through an independently trusted channel (HK 2024 scam: HK$200M)."],
+["L6","Perception–action loop","World → sensor → digital representation → AI → instruction → actuator → action."],
+["L6","Proprioceptive sensor","Senses the robot's own body: joint angle, wheel rotation, IMU, battery."],
+["L6","Exteroceptive sensor","Senses the environment: camera, LiDAR, radar, GPS, touch, microphone, force."],
+["L6","Passive vs active sensor","Passive receives (camera, thermal); active emits (radar, LiDAR, ToF)."],
+["L6","Sensor fusion","Combining sensors reduces uncertainty but does not remove it."],
+["L6","Imitation learning","Learn which actions to take from demonstrations."],
+["L6","Reinforcement learning","Learn action values from rewards over the whole outcome."],
+["L6","Reward function","Scores the outcome of an action (crawler: +6 forward, −4 back)."],
+["L6","Sim‑to‑real gap","Slipping, sensor noise, slow motors. Train under varied conditions and test on the real robot."],
+["L6","VLA model","Vision–Language–Action: image + instruction → physical action."],
+["L6","Driving levels 0–5","Manual, Assistance, Supervised, Takeover‑ready, Driverless within limits, Full automation."],
+["L7","Horizontal enabling layer","AI spreads across domains like electricity and the internet."],
+["L7","Protein folding","Amino‑acid sequence → 3D shape; the shape enables the protein's function."],
+["L7","X‑ray crystallography","Crystal → diffraction → structure. Myoglobin took 12 years (Kendrew 1958)."],
+["L7","CASP","Blind protein structure prediction competition since 1994; predict before the experiment is revealed."],
+["L7","GDT","Global Distance Test: higher = closer to the experimental structure; ≈90 is competitive with experiment."],
+["L7","AlphaFold","Learned from solved proteins; AF2 (2020) ≈90 GDT; 200M+ predicted structures by July 2022."],
+["L7","AI protein design","AI proposes shape → chooses sequence → predicts folding/binding → researchers make & test."],
+["L7","Propose → Test → Improve","Protein: measure function. Program: run tests. Proof: check the argument."],
+["L8","Values / Fairness / Accountability","What to prioritise? Who benefits and who bears the harm? Who must justify and correct?"],
+["L8","Switch vs Footbridge","Redirecting a threat vs using a person as the means. How we save lives matters."],
+["L8","Consequences / Duties / Rights","“Save the most lives” / “help, don't harm” / “the sacrificed person has rights”."],
+["L8","Moral Machine","Survey: humans > pets (+58.3), more lives (+50.8), younger (+49.0), higher status (+34.5)."],
+["L8","Tragedy of the commons","Individual reward vs shared consequence. Better optimisation doesn't guarantee better shared outcomes."],
+["L8","COMPAS","1–10 reoffending risk score used by judges in Broward County, FL. Commercial; formula not public."],
+["L8","False positive (COMPAS)","Rated higher risk (5–10) but not rearrested within 2 years."],
+["L8","False negative (COMPAS)","Rated lower risk (1–4) but rearrested."],
+["L8","Dressel & Farid 2018","FPR Black 40.4% vs White 25.4%; FNR White 47.9% vs Black 30.9%; crowd ≈ COMPAS accuracy."],
+["L8","Justify / Challenge / Correct","Accountability questions. “The AI said so” is not a justification."],
+["L9","Understanding / Experience / Control","Does it understand? Could it feel? Can we keep humans in control?"],
+["L9","Syntax vs semantics","Searle: symbol manipulation (syntax) alone isn't enough for meaning (semantics)."],
+["L9","Grounding problem","How do words like “cat” connect to real cats? Perception and action offer a route."],
+["L9","Mary's Room (Jackson 1982)","Knows every physical fact about colour but has never seen red. Does seeing it teach her something new?"],
+["L9","Consciousness","Having subjective experiences."],
+["L9","Supervisor limits","Too fast, too many actions, too complex."],
+["L9","Recursive self‑improvement","AI helps improve AI, which makes it better at improving AI."],
+["L9","Hosted vs open‑weight control","The developer can stop hosted AI; open‑weight copies keep running, so control shifts to the operators."],
+["L9","Capability ≠ authority","Performing well doesn't by itself justify letting AI decide."]
+];
+let fcIdx=0, fcList=[];
+function fcBuild(){fcList=TERMS.map((t,i)=>i).filter(i=>lecOk(TERMS[i][0])&&(!hideDone||!knownFc.has(i))&&(!query||(TERMS[i][1]+' '+TERMS[i][2]).toLowerCase().includes(query.toLowerCase())));if(fcIdx>=fcList.length)fcIdx=0}
+function renderFc(){
+  fcBuild();
+  if(!fcList.length){$('#flash').innerHTML='<div class="empty">No cards here. Clear the filters, or you\'ve mastered them all 🎉</div>';return}
+  const i=fcList[fcIdx], [l,term,def]=TERMS[i], lx=LMAP[l], kn=TERMS.filter((t,j)=>knownFc.has(j)&&lecOk(t[0])).length, tot=TERMS.filter(t=>lecOk(t[0])).length;
+  $('#flash').innerHTML=`<div class="qmeta"><span>Card ${fcIdx+1} / ${fcList.length}</span><span>${kn}/${tot} known</span></div>
+   <div class="flip" id="fc"><div class="in">
+    <div class="face front" style="background:linear-gradient(135deg,${lx.c1},${lx.c2})"><small>${l}</small><b>${esc(term)}</b><span class="hint">click / space to flip</span></div>
+    <div class="face back"><small style="color:${lx.c1}">${l} · ${esc(term)}</small><div>${esc(def)}</div></div></div></div>
+   <div class="fcbtns"><button class="btn" id="fprev">← Prev</button><button class="btn" id="fshuf">🔀 Shuffle</button>
+   <button class="btn" id="fno" style="border-color:var(--bad)">✗ Still learning</button><button class="btn pri" id="fyes">✓ Know it</button><button class="btn" id="fnext">Next →</button></div>
+   <p style="text-align:center;font-size:13px;color:var(--muted)"><span class="kbd">Space</span> flip · <span class="kbd">←</span><span class="kbd">→</span> move</p>`;
+  $('#fc').onclick=()=>$('#fc').classList.toggle('on');
+  $('#fprev').onclick=()=>fcMove(-1); $('#fnext').onclick=()=>fcMove(1);
+  $('#fshuf').onclick=()=>{TERMS_order();};
+  $('#fyes').onclick=()=>{knownFc.add(i);store.set('knownFc',[...knownFc]);stats();if(hideDone)renderFc();else fcMove(1)};
+  $('#fno').onclick=()=>{knownFc.delete(i);store.set('knownFc',[...knownFc]);stats();fcMove(1)};
+}
+function TERMS_order(){const pairs=shuffle(TERMS.map((t,i)=>[t,knownFc.has(i)]));TERMS.length=0;knownFc.clear();pairs.forEach(([t,k],i)=>{TERMS.push(t);if(k)knownFc.add(i)});fcIdx=0;renderFc()}
+function fcMove(d){if(!fcList.length)return;fcIdx=(fcIdx+d+fcList.length)%fcList.length;renderFc()}
+
+/* ---------- plan ---------- */
+const PLAN=[
+ ["Day 1 (Mon 23 Nov): Learn",[
+  "Read Notes L1–L3 (AI basics, neural nets, LLMs). Tick “Revised”.",
+  "MCQ quiz on L1–L3 (20 Qs). Retry the misses.",
+  "Read Notes L4–L6 (chatbots, multimodal/diffusion, robotics).",
+  "MCQ quiz on L4–L6. Retry the misses.",
+  "Read Notes L7–L9 (proteins, ethics/COMPAS, philosophy).",
+  "MCQ quiz on L7–L9. Retry the misses.",
+  "Flashcards: one full pass over all lectures."]],
+ ["Day 2 (Tue 24 Nov): Practise writing",[
+  "Write answers to all short‑answer questions for L1–L5 before revealing.",
+  "Write answers to all short‑answer questions for L6–L9 before revealing.",
+  "Memorise key numbers: COMPAS rates, Moral Machine %, 26 vs 32, HK$200M, 200M+ structures, GDT ≈90.",
+  "MCQ quiz: ALL lectures, 40 questions. Aim for 80%+.",
+  "Flashcards: “Not mastered” filter only.",
+  "Check Ed for your slot + venue. Upload the declaration. Charge laptop/tablet."]],
+ ["Test day (Wed 25 Nov)",[
+  "Arrive at least 1 hour early (late arrivals are not admitted).",
+  "Only the Ed final‑test page may be open. No AI, notes, tabs or translation.",
+  "Stay until dismissed. Report problems to an invigilator immediately."]]
+];
+function renderPlan(){
+  const done=new Set(store.get('plan',[]));
+  $('#plan').innerHTML=PLAN.map(([h,items],d)=>{const c=items.filter((_,k)=>done.has(d+'.'+k)).length;
+   return `<div class="card" style="--c1:${['#5b5bf0','#f97316','#dc2626'][d]};--c2:${['#06b6d4','#f43f5e','#f97316'][d]}"><div class="top"><div class="name">${h}</div><span style="font-size:13px;font-weight:700;color:var(--muted)">${c}/${items.length}</span></div>
+   ${items.map((t,k)=>`<label class="pi${done.has(d+'.'+k)?' ok':''}"><input type="checkbox" data-p="${d}.${k}" ${done.has(d+'.'+k)?'checked':''}><span>${t}</span></label>`).join('')}</div>`}).join('');
+  $$('#plan [data-p]').forEach(c=>c.onchange=()=>{c.checked?done.add(c.dataset.p):done.delete(c.dataset.p);store.set('plan',[...done]);renderPlan()});
+  $('#examInfo').innerHTML=[
+   ["📅 When","<b>Wednesday 25 November 2026</b>. Slot and venue are announced on <b>Ed</b>. There are two time slots per subclass, so attend only your own."],
+   ["📝 Format","<b>Short‑answer</b> test on Ed. Bring a <b>laptop or tablet</b> (no mobile phones). Worth <b>40%</b> of the course."],
+   ["🔒 Closed book","Only the Ed final‑test page may be open. No AI, notes, other tabs/apps, browser plugins or translation (including right‑click). After submitting, SFTL is allowed."],
+   ["⚠️ Don't fail on a technicality","Arrive ≥1 h early (late = not admitted). No early departure. Unapproved absence → <b>fail the whole course</b>. Unauthorised tools → course failure + misconduct."],
+   ["🤒 Absence","Sick leave certificate or leave approved by your home Faculty covering Wed 25 Nov → <b>ailit@hku.hk</b>. Makeup: Wed 2 Dec, 8 AM (approved cases only)."]
+  ].map(([h,b])=>`<div class="card" style="--c1:#dc2626;--c2:#f97316"><div class="name">${h}</div><div style="font-size:14.5px;margin-top:4px">${b}</div></div>`).join('');
+  $('#howto').innerHTML=[
+   ["Define → explain → example","Start with the definition in one line, explain the mechanism, then give the course example (e.g. bank → money vs fish for attention)."],
+   ["Use the course's catch‑phrases","Graders look for the key ideas: “context changes, weights fixed”, “syntax ≠ semantics”, “overall accuracy can hide unequal errors”, “capability ≠ authority”."],
+   ["Quote the numbers","Specifics show mastery: 40.4% vs 25.4% FPR, +26 vs +32, 10⁹ combinations, HK$200M, 200M+ structures."],
+   ["Opinion questions: both sides","For “should…?” questions, give a position, a reason, the strongest objection, and a safeguard (values, fairness, accountability)."]
+  ].map(([h,b])=>`<div class="card" style="--c1:#7c3aed;--c2:#ec4899"><div class="name">💡 ${h}</div><div style="font-size:14.5px;margin-top:4px">${b}</div></div>`).join('');
+}
+
+/* ---------- stats & nav ---------- */
+function stats(){
+  $('#s-mcq').textContent=MCQ.length; $('#s-saq').textContent=SAQ.length;
+  const tot=SAQ.length+TERMS.length+L.length, d=doneSaq.size+knownFc.size+doneNote.size;
+  $('#s-done').textContent=d; $('#prog').style.width=(d/tot*100)+'%';
+  const ms=new Date(2026,10,25)-new Date(new Date().toDateString()), days=Math.round(ms/864e5);
+  $('#s-days').textContent=days>0?days:days===0?'Today!':'Done'; $('#s-days-l').textContent=days>0?'days to test (Wed 25 Nov)':days===0?'final test day':'test finished';
+}
+function setView(v){view=v;$$('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v===v));$$('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
+  $('#filterRow').classList.toggle('hidden',v==='plan'||v==='quiz');$('#lecChips').classList.toggle('hidden',v==='plan');
+  if(v==='quiz'&&!Q)quizSetup(); if(v==='flash')renderFc(); store.set('view',v)}
+$$('.tab').forEach(t=>t.onclick=()=>setView(t.dataset.v));
+$('#q').oninput=e=>{query=e.target.value.trim();renderAll()};
+$('#hideDone').onclick=()=>{hideDone=!hideDone;$('#hideDone').classList.toggle('on',hideDone);renderAll()};
+function renderAll(){renderNotes();renderSaq();if(view==='flash')renderFc();if(view==='quiz'&&(!Q||Q.pos>=Q.items.length))quizSetup()}
+renderChips();renderAll();renderPlan();stats();setView(store.get('view','notes'));
+</script>
+</body>
+</html>
