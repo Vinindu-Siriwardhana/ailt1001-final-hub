@@ -1,7 +1,7 @@
 // AILT1001 Final Hub — content compiled from Lecture 1–9 slides (2026-27 Sem 1)
 window.LECTURES = [
 {
- id:"L1", n:1, title:"Introduction: Could a Machine Be Intelligent?", c1:"#5b5bf0", c2:"#06b6d4",
+ id:"L1", n:1, title:"Introduction: Could a Machine Be Intelligent?", c1:"#0f766e", c2:"#5eaaa8",
  big:"Judge AI by what it can do — but a correct reply is not proof of understanding.",
  sections:[
   ["Why this course", [
@@ -34,7 +34,7 @@ window.LECTURES = [
  ]
 },
 {
- id:"L2", n:2, title:"How Neural Networks Learn", c1:"#7c3aed", c2:"#ec4899",
+ id:"L2", n:2, title:"How Neural Networks Learn", c1:"#c2410c", c2:"#f4a261",
  big:"Inference = use fixed knobs. Training = search for knob settings that match known data; backprop updates all knobs at once.",
  sections:[
   ["Why learn how it works", [
@@ -66,7 +66,7 @@ window.LECTURES = [
  ]
 },
 {
- id:"L3", n:3, title:"Large Language Models", c1:"#4f46e5", c2:"#06b6d4",
+ id:"L3", n:3, title:"Large Language Models", c1:"#4d7c0f", c2:"#a3b18a",
  big:"An LLM predicts the next token, samples one, repeats. Training changes weights (pre‑train → fine‑tune → human feedback); inference uses context with fixed weights.",
  sections:[
   ["Why language", [
@@ -96,7 +96,7 @@ window.LECTURES = [
  ]
 },
 {
- id:"L4", n:4, title:"From LLMs to Chatbots", c1:"#0891b2", c2:"#22c55e",
+ id:"L4", n:4, title:"From LLMs to Chatbots", c1:"#1d4e89", c2:"#7fa7c9",
  big:"Chatbot = LLM + context + tools. The model's weights are fixed; everything it 'knows' about you or today comes from what's put in its context.",
  sections:[
   ["What's in the context", [
@@ -133,7 +133,7 @@ window.LECTURES = [
  ]
 },
 {
- id:"L5", n:5, title:"Beyond Text: Learning Across Modalities", c1:"#db2777", c2:"#f97316",
+ id:"L5", n:5, title:"Beyond Text: Learning Across Modalities", c1:"#8e3b65", c2:"#d4a5a5",
  big:"Everything becomes numbers (pixels, audio samples, tokens). Diffusion makes images by learning to predict noise, then removing a little noise at a time.",
  sections:[
   ["Modalities", [
@@ -166,7 +166,7 @@ window.LECTURES = [
  ]
 },
 {
- id:"L6", n:6, title:"From Perception to Action: AI in Robotics", c1:"#16a34a", c2:"#0891b2",
+ id:"L6", n:6, title:"From Perception to Action: AI in Robotics", c1:"#a16207", c2:"#e9c46a",
  big:"Robots run a sense → think → act loop. They learn actions by imitation (examples) or reinforcement (rewards over the whole outcome).",
  sections:[
   ["Perception–action loop", ["Physical world →(sense)→ <b>Sensor</b> →(digital representation)→ <b>AI</b> →(instruction)→ <b>Actuator</b> →(action)→ physical world."]],
@@ -195,7 +195,7 @@ window.LECTURES = [
  ]
 },
 {
- id:"L7", n:7, title:"AI for Discovery and Invention (Proteins)", c1:"#2563eb", c2:"#a16207",
+ id:"L7", n:7, title:"AI for Discovery and Invention (Proteins)", c1:"#155e75", c2:"#67b7c7",
  big:"AlphaFold predicts protein shape from sequence (tested blindly in CASP); AI can also design new proteins — but every idea needs Propose → Test → Improve.",
  sections:[
   ["AI as an enabling layer", [
@@ -229,7 +229,7 @@ window.LECTURES = [
  ]
 },
 {
- id:"L8", n:8, title:"AI Ethics: Values, Fairness, Accountability", c1:"#1e40af", c2:"#64748b",
+ id:"L8", n:8, title:"AI Ethics: Values, Fairness, Accountability", c1:"#9b2226", c2:"#e07a5f",
  big:"Ask three questions: What should it prioritise? Who benefits and who bears the harm? Who must justify and correct it? Overall accuracy can hide unequal errors.",
  sections:[
   ["Three questions", ["<b>Values</b> — what should AI prioritise? · <b>Fairness</b> — who benefits, who bears the harm? · <b>Accountability</b> — who must justify the decision?"]],
@@ -263,7 +263,7 @@ window.LECTURES = [
  ]
 },
 {
- id:"L9", n:9, title:"Philosophy of AI: Understanding, Experience, Control", c1:"#9333ea", c2:"#0ea5e9",
+ id:"L9", n:9, title:"Philosophy of AI: Understanding, Experience, Control", c1:"#3d405b", c2:"#9a8c98",
  big:"Three questions: Does it understand? Could it feel? Can we keep control? Capability alone does not justify authority.",
  sections:[
   ["Beyond capability", ["ICU bed (best odds or equal chance?), courtroom (advise or decide?), car (passenger or pedestrians?). <b>Capability alone does not justify authority.</b>"]],
