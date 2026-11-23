@@ -123,7 +123,22 @@ mark{background:var(--hi);color:inherit;border-radius:2px;padding:0 1px}
 .tips{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}
 .kbd{font:12px ui-monospace,monospace;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--card)}
 footer{color:var(--muted);font-size:13px;text-align:center;padding:10px 0 40px;font-family:var(--serif);font-style:italic}
-@media print{body{background:#fff}.hero,.toolbar,footer{display:none}.card{break-inside:avoid;box-shadow:none}.view{display:block!important}#v-quiz,#v-flash{display:none!important}.ans{display:block!important}.draft,.rev{display:none}}
+/* checklist + mock */
+.cklist{margin-top:12px;padding-top:10px;border-top:1px dashed color-mix(in srgb,var(--ok) 35%,transparent)}
+.ckh{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ok);font-weight:700;display:flex;justify-content:space-between;margin-bottom:2px}
+.ckh span{letter-spacing:0;font-size:13px}
+.cklist .pi{padding:3px 6px;font-size:14px}
+.cklist .pi.ok span{text-decoration:none;opacity:1;color:var(--ok);font-weight:600}
+.cknote{font-size:12px;color:var(--muted);font-style:italic;margin-top:4px}
+.yours{margin-top:10px;padding:10px 14px;border:1.5px dashed var(--line);border-radius:4px;font-size:14.5px;white-space:normal}
+.yours .ckh{color:var(--muted)}
+#timerPill{position:fixed;right:18px;bottom:18px;z-index:50;background:var(--ink);color:#fff;font:700 1.25rem/1 var(--serif);padding:12px 18px;border-radius:6px;box-shadow:3px 3px 0 var(--exam)}
+#timerPill.warn{background:var(--bad);animation:pulse 1s infinite alternate}
+@keyframes pulse{to{transform:scale(1.06)}}
+table.hist{font-size:14px;border-collapse:collapse;width:100%}
+.hist th,.hist td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line)}
+.hist th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+@media print{#v-mock{display:none!important}body{background:#fff}.hero,.toolbar,footer{display:none}.card{break-inside:avoid;box-shadow:none}.view{display:block!important}#v-quiz,#v-flash{display:none!important}.ans{display:block!important}.draft,.rev{display:none}}
 </style>
 </head>
 <body>
@@ -146,6 +161,7 @@ footer{color:var(--muted);font-size:13px;text-align:center;padding:10px 0 40px;f
     <button class="tab on" data-v="notes">📚 Notes</button>
     <button class="tab" data-v="quiz">🧠 MCQ quiz</button>
     <button class="tab" data-v="saq">✍️ Short answer</button>
+    <button class="tab" data-v="mock">⏱ Mock test</button>
     <button class="tab" data-v="flash">🃏 Flashcards</button>
     <button class="tab" data-v="plan">✅ Exam &amp; plan</button>
   </div>
@@ -164,10 +180,13 @@ footer{color:var(--muted);font-size:13px;text-align:center;padding:10px 0 40px;f
 
   <section class="view" id="v-saq">
     <h2 class="sec" style="--c1:#c2410c"><span class="num">✍️</span>Short‑answer practice</h2>
-    <p class="blurb">The final test is <b>short‑answer</b>. Write your answer in the box (or on paper), then press <b>Reveal model answer</b>. Tick <b>Got it</b> once you could reproduce it closed‑book.</p>
+    <p class="blurb">The final test is <b>short‑answer</b>. Write your answer in the box (or on paper), then press <b>Reveal model answer</b> and tick the self‑check points your answer covered. Tick <b>Got it</b> once you can reproduce it closed‑book. Three kinds of question: <b>recall</b> (explain a concept), <b>✏️ explain a diagram</b> (redraw it from memory and talk through each arrow), and <b>🧭 new situation</b> (apply the ideas to a case that isn't in the slides).</p>
+    <div class="row" style="margin:0 0 8px 50px" id="typeChips"></div>
     <div class="row" style="margin:0 0 12px 50px"><button class="btn" id="showAll">Show all answers</button><button class="btn" id="shuffleSaq">🔀 Shuffle</button></div>
     <div class="grid" id="saq"></div><div class="empty hidden" id="saqEmpty">No matches — try a different search.</div>
   </section>
+
+  <section class="view" id="v-mock"><div id="mock"></div></section>
 
   <section class="view" id="v-flash"><div class="fc-wrap" id="flash"></div></section>
 
@@ -178,6 +197,7 @@ footer{color:var(--muted);font-size:13px;text-align:center;padding:10px 0 40px;f
     <p class="blurb">Ticks are saved in this browser.</p>
     <div class="grid" id="plan"></div>
     <h2 class="sec" style="--c1:#3d405b"><span class="num">💡</span>How to write a good short answer</h2>
+    <p class="blurb">General study advice from me, <b>not</b> the official marking criteria. I haven't seen a rubric, so check Ed for any guidance from the course team.</p>
     <div class="tips" id="howto"></div>
   </section>
 </main>
@@ -222,27 +242,121 @@ function renderNotes(){
 }
 
 /* ---------- SAQ ---------- */
-let saqOrder=SAQ.map((_,i)=>i), allOpen=false;
-const drafts=store.get('drafts',{});
+let saqOrder=SAQ.map((_,i)=>i), allOpen=false, saqType=store.get('saqType','all');
+const drafts=store.get('drafts',{}), checks=store.get('checks',{});
+const tOf=s=>s.t||'recall', keysOf=i=>SAQ[i].k||(window.SAQ_KEYS||[])[i]||[];
+const TYPES={recall:['Recall',''],diagram:['✏️ Explain a diagram','#0f766e'],apply:['🧭 New situation','#c2410c']};
+const typeBadge=s=>tOf(s)==='recall'?'':`<span class="badge" style="background:${TYPES[tOf(s)][1]}">${TYPES[tOf(s)][0]}</span>`;
+// Self-check list; `ns` keeps practice ticks and mock-test ticks separate
+function checklist(i,ns){
+  const ks=keysOf(i); if(!ks.length) return '';
+  const key=ns+i, got=checks[key]||[];
+  return `<div class="cklist"><div class="ckh">Self‑check: did your answer include… <span>${got.length}/${ks.length}</span></div>
+    ${ks.map((k,j)=>`<label class="pi${got.includes(j)?' ok':''}"><input type="checkbox" data-ck="${key}" data-j="${j}" ${got.includes(j)?'checked':''}><span>${esc(k)}</span></label>`).join('')}
+    <div class="cknote">This is my own checklist from the slides, not the official marking scheme.</div></div>`;
+}
+function bindChecks(root,after){
+  root.querySelectorAll('[data-ck]').forEach(c=>c.onchange=()=>{const k=c.dataset.ck,j=+c.dataset.j,a=new Set(checks[k]||[]);c.checked?a.add(j):a.delete(j);checks[k]=[...a];store.set('checks',checks);
+    c.closest('.pi').classList.toggle('ok',c.checked);const box=c.closest('.cklist');box.querySelector('.ckh span').textContent=a.size+'/'+box.querySelectorAll('[data-ck]').length;after&&after()});
+}
+function renderTypeChips(){
+  const cnt=t=>SAQ.filter(s=>t==='all'||tOf(s)===t).length;
+  $('#typeChips').innerHTML=[['all','All types'],...Object.entries(TYPES).map(([k,v])=>[k,v[0]])].map(([k,v])=>`<button class="chip${saqType===k?' on':''}" data-t="${k}">${v} <span style="opacity:.6">${cnt(k)}</span></button>`).join('');
+  $$('#typeChips .chip').forEach(b=>b.onclick=()=>{saqType=b.dataset.t;store.set('saqType',saqType);renderTypeChips();renderSaq()});
+}
 function renderSaq(){
   let n=0;
   $('#saq').innerHTML=saqOrder.map(i=>{
     const s=SAQ[i], id='s'+i, lx=LMAP[s.l];
     const text=(s.q+' '+strip(s.a)).toLowerCase();
-    if(!lecOk(s.l)||(query&&!text.includes(query.toLowerCase()))||(hideDone&&doneSaq.has(id))) return '';
+    if(!lecOk(s.l)||(saqType!=='all'&&tOf(s)!==saqType)||(query&&!text.includes(query.toLowerCase()))||(hideDone&&doneSaq.has(id))) return '';
     n++;
     return `<div class="card${doneSaq.has(id)?' done':''}${allOpen?' open':''}" style="--c1:${lx.c1};--c2:${lx.c2}" data-id="${id}">
-      <div class="top"><div class="name"><span class="badge">${s.l}</span><span style="font-size:12.5px;color:var(--muted);font-weight:600">${esc(lx.title)}</span></div>
+      <div class="top"><div class="name"><span class="badge">${s.l}</span>${typeBadge(s)}<span style="font-size:12.5px;color:var(--muted);font-weight:600">${esc(lx.title)}</span></div>
       <label class="chk"><input type="checkbox" data-saq="${id}" ${doneSaq.has(id)?'checked':''}> Got it</label></div>
       <div class="qbody">${hl(esc(s.q))}</div>
-      <textarea class="draft" data-draft="${id}" placeholder="Write your answer here first (saved locally)…">${esc(drafts[id]||'')}</textarea>
+      <textarea class="draft" data-draft="${id}" placeholder="${tOf(s)==='diagram'?'Sketch it on paper, then write what each part/arrow does here…':'Write your answer here first (saved locally)…'}">${esc(drafts[id]||'')}</textarea>
       <button class="btn rev" data-rev="${id}">${allOpen?'Hide':'Reveal'} model answer</button>
-      <div class="ans">${hl(s.a)}</div></div>`;
+      <div class="ans">${hl(s.a)}${checklist(i,'p')}</div></div>`;
   }).join('');
   $('#saqEmpty').classList.toggle('hidden',n>0);
   $$('#saq [data-rev]').forEach(b=>b.onclick=()=>{const c=b.closest('.card');c.classList.toggle('open');b.textContent=(c.classList.contains('open')?'Hide':'Reveal')+' model answer'});
   $$('#saq [data-saq]').forEach(c=>c.onchange=()=>{c.checked?doneSaq.add(c.dataset.saq):doneSaq.delete(c.dataset.saq);store.set('doneSaq',[...doneSaq]);c.closest('.card').classList.toggle('done',c.checked);stats();});
   $$('#saq [data-draft]').forEach(t=>t.oninput=()=>{drafts[t.dataset.draft]=t.value;store.set('drafts',drafts)});
+  bindChecks($('#saq'));
+}
+
+/* ---------- timed mock test ---------- */
+let mock=store.get('mock',null), mockTimer=null;
+const mockHist=store.get('mockHist',[]);
+const fmt=s=>{s=Math.max(0,s|0);return String(s/60|0).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+function pickMock(n){
+  const pools={recall:[],diagram:[],apply:[]}; SAQ.forEach((s,i)=>pools[tOf(s)].push(i)); Object.values(pools).forEach(shuffle);
+  const want={diagram:n>=8?2:1,apply:n>=8?3:2}; want.recall=n-want.diagram-want.apply;
+  const used=new Set(), out=[];
+  for(const t of ['apply','diagram','recall']){ // prefer lectures not used yet, for a spread across the course
+    const p=pools[t].slice(); let need=want[t];
+    for(const i of p){ if(!need) break; if(!used.has(SAQ[i].l)){out.push(i);used.add(SAQ[i].l);need--} }
+    for(const i of p){ if(!need) break; if(!out.includes(i)){out.push(i);need--} }
+  }
+  return shuffle(out);
+}
+function saveMock(){store.set('mock',mock)}
+function renderMock(){
+  clearInterval(mockTimer); $('#timerPill')&&$('#timerPill').remove();
+  if(!mock) return mockSetup();
+  if(!mock.submitted) return mockRun();
+  mockResults();
+}
+function mockSetup(){
+  $('#mock').innerHTML=`<h2 class="sec" style="--c1:#9b2226"><span class="num">⏱</span>Timed mock test</h2>
+  <p class="blurb">Simulates Wednesday: a mixed set of short‑answer questions from <b>all lectures</b>, including at least one diagram question and two new‑situation questions. Answers stay hidden until you submit or time runs out. Then you mark yourself with the self‑check points. Treat it as closed book.</p>
+  <div class="card" style="--c1:#9b2226"><div class="setup">
+    <div><h3>Questions</h3><div class="lchips" id="mn">${[6,8,10].map(k=>`<button class="chip${k===8?' on':''}" data-n="${k}">${k}</button>`).join('')}</div></div>
+    <div><h3>Time limit</h3><div class="lchips" id="mt">${[30,45,60].map(k=>`<button class="chip${k===45?' on':''}" data-m="${k}">${k} min</button>`).join('')}</div>
+    <div style="font-size:13px;color:var(--muted);margin-top:6px">I don't know the real test's length or number of questions, so pick whatever feels like a good push. About 5 minutes per question is a reasonable pace.</div></div>
+    <div class="row"><button class="btn pri big" id="mgo">Start mock test →</button></div>
+    ${mockHist.length?`<div><h3>Past attempts</h3><table class="hist"><tr><th>When</th><th>Questions</th><th>Time used</th><th>Self‑check score</th></tr>${mockHist.slice().reverse().map(h=>`<tr><td>${esc(h.when)}</td><td>${h.n}</td><td>${fmt(h.used)} / ${h.mins} min</td><td><b>${h.got}/${h.tot}</b> (${Math.round(h.got/h.tot*100)}%)</td></tr>`).join('')}</table></div>`:''}
+  </div></div>`;
+  let n=8,m=45;
+  $$('#mn .chip').forEach(b=>b.onclick=()=>{$$('#mn .chip').forEach(x=>x.classList.remove('on'));b.classList.add('on');n=+b.dataset.n});
+  $$('#mt .chip').forEach(b=>b.onclick=()=>{$$('#mt .chip').forEach(x=>x.classList.remove('on'));b.classList.add('on');m=+b.dataset.m});
+  $('#mgo').onclick=()=>{Object.keys(checks).filter(k=>k[0]==='m').forEach(k=>delete checks[k]);store.set('checks',checks);mock={ids:pickMock(n),mins:m,start:Date.now(),answers:{},submitted:false};saveMock();renderMock();scrollTo({top:0})};
+}
+function mockRun(){
+  const left=()=>mock.mins*60-(Date.now()-mock.start)/1000;
+  $('#mock').innerHTML=`<h2 class="sec" style="--c1:#9b2226"><span class="num">⏱</span>Mock test in progress</h2>
+   <p class="blurb">${mock.ids.length} questions · ${mock.mins} minutes. Your answers save as you type, so a refresh won't lose them. For diagram questions, sketch on paper and describe it in the box.</p>
+   <div class="grid">${mock.ids.map((i,k)=>{const s=SAQ[i],lx=LMAP[s.l];return `<div class="card" style="--c1:${lx.c1}">
+     <div class="top"><div class="name"><span class="num" style="width:30px;height:30px;font-size:.85rem">${k+1}</span><span class="badge">${s.l}</span>${typeBadge(s)}</div></div>
+     <div class="qbody">${esc(s.q)}</div>
+     <textarea class="draft" data-m="${i}" style="min-height:130px" placeholder="Your answer…">${esc(mock.answers[i]||'')}</textarea></div>`}).join('')}</div>
+   <div class="row" style="justify-content:space-between;margin-top:16px"><button class="btn" id="mquit">Abandon</button><button class="btn pri big" id="msub">Submit and mark →</button></div>`;
+  $$('#mock [data-m]').forEach(t=>t.oninput=()=>{mock.answers[t.dataset.m]=t.value;saveMock()});
+  const pill=document.createElement('div');pill.id='timerPill';document.body.appendChild(pill);
+  const tick=()=>{const l=left();pill.textContent='⏱ '+fmt(l);pill.classList.toggle('warn',l<300);if(l<=0){submitMock(true)}};
+  tick(); mockTimer=setInterval(()=>{if(view==='mock')tick()},1000);
+  $('#msub').onclick=()=>{const blank=mock.ids.filter(i=>!(mock.answers[i]||'').trim()).length;if(blank&&!confirm(blank+' question(s) are blank. Submit anyway?'))return;submitMock(false)};
+  $('#mquit').onclick=()=>{if(confirm('Abandon this mock? Your answers will be discarded.')){mock=null;saveMock();renderMock()}};
+}
+function submitMock(timeUp){mock.submitted=true;mock.timeUp=timeUp;mock.used=Math.min(mock.mins*60,(Date.now()-mock.start)/1000);saveMock();renderMock();scrollTo({top:0})}
+function mockScore(){let got=0,tot=0;mock.ids.forEach(i=>{tot+=keysOf(i).length;got+=(checks['m'+i]||[]).length});return[got,tot]}
+function mockResults(){
+  const draw=()=>{const [g,t]=mockScore();$('#mscore').textContent=g+' / '+t;$('#mpct').textContent=Math.round(g/t*100)+'% of self‑check points'};
+  $('#mock').innerHTML=`<h2 class="sec" style="--c1:#9b2226"><span class="num">✓</span>Mark your mock</h2>
+   <div class="card" style="--c1:#9b2226;text-align:center">${mock.timeUp?'<div class="badge" style="background:var(--bad)">Time\'s up</div>':''}
+    <div class="score" id="mscore"></div><div style="color:var(--muted);font-weight:600" id="mpct"></div>
+    <div style="font-size:13.5px;color:var(--muted);margin-top:6px">Time used: ${fmt(mock.used)} of ${mock.mins}:00. Compare each answer with the model answer and tick only what you actually wrote. Be strict.</div></div>
+   <div class="grid" style="margin-top:16px">${mock.ids.map((i,k)=>{const s=SAQ[i],lx=LMAP[s.l];return `<div class="card open" style="--c1:${lx.c1}">
+     <div class="top"><div class="name"><span class="num" style="width:30px;height:30px;font-size:.85rem">${k+1}</span><span class="badge">${s.l}</span>${typeBadge(s)}</div></div>
+     <div class="qbody">${esc(s.q)}</div>
+     <div class="yours"><div class="ckh">Your answer</div>${(mock.answers[i]||'').trim()?esc(mock.answers[i]).replace(/\n/g,'<br>'):'<i style="color:var(--muted)">(blank)</i>'}</div>
+     <div class="ans">${s.a}${checklist(i,'m')}</div></div>`}).join('')}</div>
+   <div class="row" style="justify-content:space-between;margin-top:16px"><button class="btn" id="mnew">Discard and start a new mock</button><button class="btn pri big" id="mdone">Save result →</button></div>`;
+  // fresh ticks for this attempt
+  bindChecks($('#mock'),draw); draw();
+  $('#mdone').onclick=()=>{const [g,t]=mockScore();mockHist.push({when:new Date().toLocaleString([], {weekday:'short',hour:'2-digit',minute:'2-digit'}),n:mock.ids.length,mins:mock.mins,used:mock.used,got:g,tot:t});store.set('mockHist',mockHist);mock.ids.forEach(i=>delete checks['m'+i]);store.set('checks',checks);mock=null;saveMock();renderMock();scrollTo({top:0})};
+  $('#mnew').onclick=()=>{if(confirm('Discard this attempt without saving?')){mock.ids.forEach(i=>delete checks['m'+i]);store.set('checks',checks);mock=null;saveMock();renderMock()}};
 }
 $('#showAll').onclick=()=>{allOpen=!allOpen;$('#showAll').textContent=allOpen?'Hide all answers':'Show all answers';renderSaq()};
 $('#shuffleSaq').onclick=()=>{saqOrder=shuffle(saqOrder.slice());renderSaq()};
@@ -423,11 +537,13 @@ const PLAN=[
   "MCQ quiz on L7–L9. Retry the misses.",
   "Flashcards: one full pass over all lectures."]],
  ["Day 2 (Tue 24 Nov): Practise writing",[
-  "Write answers to all short‑answer questions for L1–L5 before revealing.",
-  "Write answers to all short‑answer questions for L6–L9 before revealing.",
-  "Memorise key numbers: COMPAS rates, Moral Machine %, 26 vs 32, HK$200M, 200M+ structures, GDT ≈90.",
-  "MCQ quiz: ALL lectures, 40 questions. Aim for 80%+.",
-  "Flashcards: “Not mastered” filter only.",
+  "Morning: write answers to the recall short‑answer questions for L1–L5 before revealing, then use the self‑check.",
+  "Write answers to the recall questions for L6–L9. Wherever you scored low, re‑read that lecture's <b>original slides</b>, not just these notes.",
+  "✏️ Explain‑a‑diagram questions: redraw each diagram from memory on paper, then compare.",
+  "🧭 New‑situation questions: these test whether you can apply the ideas to unfamiliar cases, not just repeat them.",
+  "⏱ Afternoon: one timed mock test (8 questions, 45 min), closed book. Mark it strictly.",
+  "Review the weakest points from the mock and the MCQ misses. Flashcards with the “Not mastered” filter.",
+  "Evening: a second mock if you have time. Can you explain each mechanism, give an example and a limitation without looking? That's the real test of readiness.",
   "Check Ed for your slot + venue. Upload the declaration. Charge laptop/tablet."]],
  ["Test day (Wed 25 Nov)",[
   "Arrive at least 1 hour early (late arrivals are not admitted).",
@@ -449,8 +565,9 @@ function renderPlan(){
   ].map(([h,b])=>`<div class="card" style="--c1:#9b2226;--c2:#e07a5f"><div class="name">${h}</div><div style="font-size:14.5px;margin-top:4px">${b}</div></div>`).join('');
   $('#howto').innerHTML=[
    ["Define → explain → example","Start with the definition in one line, explain the mechanism, then give the course example (e.g. bank → money vs fish for attention)."],
-   ["Use the course's catch‑phrases","Graders look for the key ideas: “context changes, weights fixed”, “syntax ≠ semantics”, “overall accuracy can hide unequal errors”, “capability ≠ authority”."],
-   ["Quote the numbers","Specifics show mastery: 40.4% vs 25.4% FPR, +26 vs +32, 10⁹ combinations, HK$200M, 200M+ structures."],
+   ["Explain, don't just name","A phrase like “context changes, weights fixed” is only useful if you can say what it means and why it matters. Use it as a summary line after the explanation."],
+   ["Include a limitation","For mechanisms (attention, diffusion, sensor fusion, AlphaFold), say what it can't do or where it fails: uncertainty, bias, frozen knowledge, untested cases."],
+   ["Use specifics where they help","A concrete example or number (e.g. COMPAS false‑positive rates) makes an argument precise, but understanding the idea matters more than memorising figures."],
    ["Opinion questions: both sides","For “should…?” questions, give a position, a reason, the strongest objection, and a safeguard (values, fairness, accountability)."]
   ].map(([h,b])=>`<div class="card" style="--c1:#3d405b;--c2:#9a8c98"><div class="name">💡 ${h}</div><div style="font-size:14.5px;margin-top:4px">${b}</div></div>`).join('');
 }
@@ -464,13 +581,13 @@ function stats(){
   $('#s-days').textContent=days>0?days:days===0?'Today!':'Done'; $('#s-days-l').textContent=days>0?'days to test (Wed 25 Nov)':days===0?'final test day':'test finished';
 }
 function setView(v){view=v;$$('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v===v));$$('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
-  $('#filterRow').classList.toggle('hidden',v==='plan'||v==='quiz');$('#lecChips').classList.toggle('hidden',v==='plan');
-  if(v==='quiz'&&!Q)quizSetup(); if(v==='flash')renderFc(); store.set('view',v)}
+  $('#filterRow').classList.toggle('hidden',v==='plan'||v==='quiz'||v==='mock');$('#lecChips').classList.toggle('hidden',v==='plan'||v==='mock');
+  if(v==='quiz'&&!Q)quizSetup(); if(v==='mock')renderMock(); else {clearInterval(mockTimer);$('#timerPill')&&$('#timerPill').remove()} if(v==='flash')renderFc(); store.set('view',v)}
 $$('.tab').forEach(t=>t.onclick=()=>setView(t.dataset.v));
 $('#q').oninput=e=>{query=e.target.value.trim();renderAll()};
 $('#hideDone').onclick=()=>{hideDone=!hideDone;$('#hideDone').classList.toggle('on',hideDone);renderAll()};
 function renderAll(){renderNotes();renderSaq();if(view==='flash')renderFc();if(view==='quiz'&&(!Q||Q.pos>=Q.items.length))quizSetup()}
-renderChips();renderAll();renderPlan();stats();setView(store.get('view','notes'));
+renderChips();renderTypeChips();renderAll();renderPlan();stats();setView(store.get('view','notes'));
 </script>
 </body>
 </html>
